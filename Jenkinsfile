@@ -85,27 +85,30 @@ pipeline {
                     }
                 }
              }
-        //      stage('Deploy To Kubernetes') {
-        //         steps {
-        //             withKubeConfig(caCertificate: '', clusterName: 'boodgame-cluster.eu-north-1.eksctl.io', contextName: '', credentialsId: 'eks-credentials', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://AF38C7B9100F8B046960FE28099DAC95.yl4.eu-north-1.eks.amazonaws.com') {
-        //                 sh 'kubectl delete --all pods -n webapps'
-        //                  sh "kubectl apply -f deployment-service.yaml"
-        //             }
-        //         }
-        //      }
 
-        //      stage('Verify the Deployment') {
-        //         steps {
-        //             withKubeConfig(caCertificate: '', clusterName: 'boodgame-cluster.eu-north-1.eksctl.io', contextName: '', credentialsId: 'eks-credentials', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://AF38C7B9100F8B046960FE28099DAC95.yl4.eu-north-1.eks.amazonaws.com') {
-        //                  sh "kubectl get pods -n webapps"
-        //                  sh "kubectl get svc -n webapps"
-        //             }
 
-        //         }
-        //      }
+             stage('Deploy To Kubernetes') {
+                steps {
+                    withKubeConfig(caCertificate: '', clusterName: 'princewill_proj-cluster', contextName: '', credentialsId: 'eks-cred', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://45CC2D9161D68FCF94CD8F626275B1B3.gr7.eu-north-1.eks.amazonaws.com') {
+                        sh 'kubectl delete --all pods -n webapps'
+                         sh "kubectl apply -f ds.yaml -n webapps"
+                         sleep 30
+                    }
+                }
+             }
+             stage('Verify the Deployment') {
+                steps {
+                    withKubeConfig(caCertificate: '', clusterName: 'princewill_proj-cluster', contextName: '', credentialsId: 'eks-cred', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://45CC2D9161D68FCF94CD8F626275B1B3.gr7.eu-north-1.eks.amazonaws.com') {
+                        sh 'kubectl get pods -n webapps'
+                         sh "kubectl get svc -n webapps"
+                    }
+                }
+             }
 
 
     } // end stages
+
+    
     // post {
     //     always {
     //         script {
