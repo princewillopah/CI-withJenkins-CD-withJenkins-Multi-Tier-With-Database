@@ -91,7 +91,7 @@ pipeline {
                 steps {
                     withKubeConfig(caCertificate: '', clusterName: 'princewill_proj-cluster', contextName: '', credentialsId: 'eks-cred', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://45CC2D9161D68FCF94CD8F626275B1B3.gr7.eu-north-1.eks.amazonaws.com') {
                         sh 'kubectl delete --all pods -n webapps'
-                         sh "kubectl apply -f ds.yaml -n webapps"
+                         sh "kubectl apply -f ds.yml -n webapps"
                          sleep 30
                     }
                 }
@@ -108,7 +108,7 @@ pipeline {
 
     } // end stages
 
-    
+
     // post {
     //     always {
     //         script {
