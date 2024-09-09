@@ -7,6 +7,9 @@ pipeline {
     }
     environment {
         SCANNER_HOME= tool 'sonar-scanner'
+                // Nexus credentials from Jenkins credentials store
+        NEXUS_USERNAME = credentials('nexus-username')
+        NEXUS_PASSWORD = credentials('nexus-password')
     }
     stages {
          stage('Clean Workspace'){
@@ -42,12 +45,19 @@ pipeline {
 
          stage('Publish Artifact To Nexus') {
             steps {
-                withMaven(globalMavenSettingsConfig: 'settings-xml-id', jdk: '', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
-                    sh "mvn deploy"  
+                 script {
+                    sh 'mvn deploy' // Deploy artifact to Nexus
                 }
+  
             }
          }
-
+        //  stage('Publish Artifact To Nexus') {
+        //     steps {
+        //         withMaven(globalMavenSettingsConfig: 'settings-xml-id', jdk: '', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
+        //             sh "mvn deploy"  
+        //         }
+        //     }
+        //  }
         // stage('Quality Gate') {
         //     steps {
         //         script {
