@@ -26,6 +26,18 @@ pipeline {
              }
         }
 
+        stage('Test') {
+            steps {
+                sh "mvn test  -DskipTests=true"  // "DskipTests=true" will make the stage be skipped
+            }
+        }
+
+        //  stage('File System Scan') {
+        //     steps {
+        //         sh "trivy fs --format table -o trivy-fs-report.html ."
+        //     }
+        //  }
+
          stage('SonarQube Analsyis') {
             steps {
                 withSonarQubeEnv('sonar-server') {
@@ -36,59 +48,43 @@ pipeline {
          }
         stage('Build') {
             steps {
-                sh "mvn package"  
+                sh "mvn package  -DskipTests=true"  // -DskipTests=true will avoid the test during build
             }
          }
-            
 
          stage('Publish Artifact To Nexus') {
             steps {
                 withMaven(globalMavenSettingsConfig: 'settings-xml-id', jdk: '', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
-                    sh "mvn deploy"  
+                    sh "mvn deploy -DskipTests=true"   // -DskipTests=true will avoid the test during deploy
                 }
             }
          }
-        // stage('Quality Gate') {
-        //     steps {
-        //         script {
-        //             waitForQualityGate abortPipeline: false, credentialsId: 'SonarQube-Credentials'
-        //         }
-        //     }
-        // }
 
-        //  stage('Build') {
-        //     steps {
-        //         sh "mvn package"  
-        //     }
-        //  }
+             stage('Build & Tag Docker Image') {
+                steps {
+                    script {
+                        withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                        sh "docker build -t princewillopah/multitier:latest ."
+                        }
+                    }
+                }
+             }
 
-     
+             stage('Docker Image Scan') {
+                steps {
+                sh "trivy image --format table -o trivy-image-report.html princewillopah/multitier:latest"
+                }
+             }
 
-        //      stage('Build & Tag Docker Image') {
-        //         steps {
-        //             script {
-        //                 withDockerRegistry(credentialsId: 'DockerHub-Credentials', toolName: 'my-docker') {
-        //                 sh "docker build -t princewillopah/boardgame:latest ."
-        //                 }
-        //             }
-        //         }
-        //      }
-
-        //      stage('Docker Image Scan') {
-        //         steps {
-        //         sh "trivy image --format table -o trivy-image-report.html princewillopah/boardgame:latest"
-        //         }
-        //      }
-
-        //      stage('Push Docker Image') {
-        //         steps {
-        //             script {
-        //                 withDockerRegistry(credentialsId: 'DockerHub-Credentials', toolName: 'my-docker') {
-        //                     sh "docker push princewillopah/boardgame:latest"
-        //                 }
-        //             }
-        //         }
-        //      }
+             stage('Push Docker Image') {
+                steps {
+                    script {
+                        withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                            sh "docker push princewillopah/multitier:latest"
+                        }
+                    }
+                }
+             }
         //      stage('Deploy To Kubernetes') {
         //         steps {
         //             withKubeConfig(caCertificate: '', clusterName: 'boodgame-cluster.eu-north-1.eksctl.io', contextName: '', credentialsId: 'eks-credentials', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://AF38C7B9100F8B046960FE28099DAC95.yl4.eu-north-1.eks.amazonaws.com') {
