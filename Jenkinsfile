@@ -43,7 +43,7 @@ pipeline {
          stage('Publish Artifact To Nexus') {
             steps {
                 withMaven(globalMavenSettingsConfig: 'settings-xml-id', jdk: '', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
-                    sh "mvn deplo"  
+                    sh "mvn deploy"  
                 }
             }
          }
