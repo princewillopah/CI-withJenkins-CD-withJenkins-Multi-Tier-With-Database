@@ -42,12 +42,17 @@ pipeline {
                 sh "mvn package"  
             }
          }
-
+            
          stage('Publish Artifact To Nexus') {
             steps {
-                 script {
-                    sh 'mvn deploy' // Deploy artifact to Nexus
-                }
+                withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+                // Inside this block, you can use the NEXUS_USERNAME and NEXUS_PASSWORD variables
+                echo "Nexus username: ${NEXUS_USERNAME}"
+                // Use these variables to configure Maven or any other tool
+                sh 'mvn deploy' // Deploy artifact to Nexus
+            }
+                    
+                
   
             }
          }
