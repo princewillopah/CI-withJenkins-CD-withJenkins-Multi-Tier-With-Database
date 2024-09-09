@@ -46,6 +46,19 @@ pipeline {
                 }
             }
          }
+        stage('Build') {
+            steps {
+                sh "mvn package  -DskipTests=true"  // -DskipTests=true will avoid the test during build
+            }
+         }
+
+         stage('Publish Artifact To Nexus') {
+            steps {
+                withMaven(globalMavenSettingsConfig: 'settings-xml-id', jdk: '', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
+                    sh "mvn deploy -DskipTests=true"   // -DskipTests=true will avoid the test during deploy
+                }
+            }
+         }
 
         // stage('Quality Gate') {
         //     steps {
@@ -55,19 +68,13 @@ pipeline {
         //     }
         // }
 
-         stage('Build') {
-            steps {
-                sh "mvn package  -DskipTests=true"  // -DskipTests=true will avoid the test during build
-            }
-         }
-
-        //  stage('Publish To Nexus') {
+        //  stage('Build') {
         //     steps {
-        //         withMaven(globalMavenSettingsConfig: 'global_settings', jdk: 'jdk17', maven: 'my-maven', mavenSettingsConfig: '', traceability: true) {
-        //             sh "mvn deploy"
-        //         }
+        //         sh "mvn package  -DskipTests=true"  // -DskipTests=true will avoid the test during build
         //     }
         //  }
+
+     
 
         //      stage('Build & Tag Docker Image') {
         //         steps {
